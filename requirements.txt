@@ -1,0 +1,2 @@
+requests==2.30.0
+fast-bitrix24==1.5.16
