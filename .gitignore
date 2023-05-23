@@ -134,7 +134,7 @@ dmypy.json
 *.db
 
 # Others
-
+config.py
 *.json
 logs/*
 !logs/.gitkeep
