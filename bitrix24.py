@@ -65,28 +65,30 @@ def get_data_event_false(meet_id):
         logger.debug(response.status_code)
 
 
-def check_affairs(webhook: str, owner_id: int, now: str, list_id: list):
+def check_affairs(webhook: str, owner_id: int, now: str, future: str, list_id: list):
     logger.debug("Функция check_affairs")
     bx24 = fast_bitrix24.Bitrix(webhook)
     affairs = bx24.get_all(method='calendar.event.get',
                            params={'type': 'user',
                                    'ownerId': owner_id,
-                                   'from': now})
+                                   'from': now,
+                                   'to': future})
     result_meet_id = list()
 
     for event in affairs:
         logger.debug(event)
         meet_id = event['ID']
         result_meet_id.append(meet_id)
-        # if meet_id in list_id:
-        #     print(event)
-        if event['MEETING_STATUS'] == 'Y' and meet_id not in list_id:
+
+        # 'MEETING_STATUS': 'Y'
+        if event.get('MEETING_STATUS') == 'Y' and meet_id not in list_id:
+            print(event)
             logger.info('Новая встреча')
             get_data_event(hook=webhook, meet_id=meet_id)
 
             list_id.append(meet_id)
 
-        elif event['MEETING_STATUS'] == 'N' and meet_id in list_id:
+        elif event.get('MEETING_STATUS') == 'N' and meet_id in list_id:
             logger.info('Отмена встречи')
 
             get_data_event_false(meet_id)

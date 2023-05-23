@@ -1,12 +1,13 @@
 from time import sleep
-from utils import get_json, set_json, datetime_now
+from utils import get_json, set_json, datetime_now, datetime_future
 from bitrix24 import check_affairs
-from config import WEBHOOK, OWNER_ID, SLEEP_SECONDS
+from config import WEBHOOK, OWNER_ID, SLEEP_SECONDS, FUTURE_DAYS
 from logging.config import dictConfig
 from logging import getLogger, INFO
+from traceback import format_exc
 
 
-FORMAT = "%(levelname)-8s [%(asctime)s] %(message)s"
+FORMAT = "%(levelname)-8s %(name)s [%(asctime)s] %(message)s %(lineno)d"
 datefmt = '%d.%m.%y %H:%M:%S'
 
 level = INFO
@@ -19,7 +20,6 @@ log_config = {
             'format': FORMAT,
             'datefmt': datefmt
         }
-
     },
     'handlers': {
         'console': {
@@ -70,9 +70,11 @@ if __name__ == "__main__":
         try:
             list_id = get_json()
             now = datetime_now()
-            list_id = check_affairs(webhook=WEBHOOK, owner_id=OWNER_ID, now=now, list_id=list_id)
+            future = datetime_future(FUTURE_DAYS)
+            list_id = check_affairs(webhook=WEBHOOK, owner_id=OWNER_ID, now=now, list_id=list_id, future=future)
             set_json(list_id)
+            logger.info(f'Сон на {SLEEP_SECONDS} секунд')
             sleep(SLEEP_SECONDS)
-        except Exception as error :
-            logger.error(f'{error}')
+        except Exception as error:
+            logger.error(f'{error}\n{format_exc()}')
             break

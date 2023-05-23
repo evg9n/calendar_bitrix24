@@ -3,6 +3,7 @@ from re import match
 import os
 from json import load, dump
 from logging import getLogger
+from datetime import timedelta
 
 
 logger = getLogger('utils')
@@ -19,6 +20,23 @@ def datetime_now() -> str:
     if now:
         logger.info(f'функция datetime_now возвращает {now.group()}')
         return now.group()
+    else:
+        # todo изменить
+        logger.info(f'функция datetime_now возвращает None')
+        return ''
+
+
+def datetime_future(days: int) -> str:
+    """
+    Определяет будущую дату и время без миллисекунд, возвращает str
+    """
+    logger.debug('функция datetime_now')
+    pattern = r"(\d{4}-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2}))"
+    date = str(dt.now() + timedelta(days=days))
+    date = match(pattern=pattern, string=date)
+    if date:
+        logger.info(f'функция datetime_now возвращает {date.group()}')
+        return date.group()
     else:
         # todo изменить
         logger.info(f'функция datetime_now возвращает None')
