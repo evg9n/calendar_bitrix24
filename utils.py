@@ -1,9 +1,11 @@
+import datetime
 from datetime import datetime as dt
 from re import match
+import re
 import os
 from json import load, dump
 from logging import getLogger
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 
 logger = getLogger('utils')
@@ -11,11 +13,11 @@ logger = getLogger('utils')
 
 def datetime_now() -> str:
     """
-    Определяет текущую дату и время без миллисекунд, возвращает str
+    Определяет текущую дату и время без миллисекунд с минусом 2 часа, возвращает str
     """
     logger.debug('функция datetime_now')
     pattern = r"(\d{4}-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2}))"
-    now = str(dt.now())
+    now = str(dt.now() - timedelta(hours=3))
     now = match(pattern=pattern, string=now)
     if now:
         logger.info(f'функция datetime_now возвращает {now.group()}')
@@ -41,6 +43,30 @@ def datetime_future(days: int) -> str:
         # todo изменить
         logger.info(f'функция datetime_now возвращает None')
         return ''
+
+
+def check_date(date: str):
+    # "30.05.2023 14:35(Europe/Moscow)"
+
+    pattern_date = r"\d{2}.\d{2}.\d{4}"
+    pattern_time = r"\d{2}:\d{2}"
+    result_date = re.search(pattern_date, date)
+    result_time = re.search(pattern_time, date)
+
+    if result_date and result_time:
+        result_date = result_date.group()
+        result_time = result_time.group()
+
+        day, month, year = str(result_date).split('.')
+        hour, minute = str(result_time).split(':')
+
+        res = datetime(year=int(year), month=int(month), day=int(day), hour=int(hour), minute=int(minute))
+        now = datetime.now()
+
+        if res > now:
+            return False
+
+    return True
 
 
 def get_json_data_id():
