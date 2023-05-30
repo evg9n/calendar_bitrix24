@@ -2,7 +2,7 @@ import fast_bitrix24
 from send_whatsapp import send_whatsapp
 from config import TOKEN, CHANNEL_ID, PHONE
 from logging import getLogger
-from utils import set_json_data_id, get_json_data_id
+from utils import set_json_data_id, get_json_data_id, check_date
 
 
 logger = getLogger('bitrix24')
@@ -82,7 +82,6 @@ def check_affairs(webhook: str, owner_id: int, now: str, future: str, list_id: l
 
         # 'MEETING_STATUS': 'Y'
         if event.get('MEETING_STATUS') == 'Y' and meet_id not in list_id:
-            print(event)
             logger.info('Новая встреча')
             get_data_event(hook=webhook, meet_id=meet_id)
 
@@ -99,11 +98,19 @@ def check_affairs(webhook: str, owner_id: int, now: str, future: str, list_id: l
 
     for meet_id in list_id:
         if meet_id not in result_meet_id:
-            logger.info('Отмена встречи')
-
-            get_data_event_false(meet_id)
-
+            data = get_json_data_id()
             list_id.remove(meet_id)
+
+            if data.get(meet_id):
+                date = data[meet_id]['date_from']
+                data.pop(meet_id)
+                set_json_data_id(data_id=data)
+
+                if check_date(date=date):
+                    logger.info('Встреча завершена/в процессе')
+                else:
+
+                    get_data_event_false(meet_id)
 
     logger.info(f'Функция check_affairs возвращает {list_id}')
     return list_id
