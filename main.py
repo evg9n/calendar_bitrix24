@@ -72,16 +72,27 @@ logger = getLogger()
 
 if __name__ == "__main__":
     logger.info('start')
-
-    while True:
+    count_fail = 5
+    while count_fail > 0:
         try:
             list_id = get_json()
             now = datetime_now()
             future = datetime_future(FUTURE_DAYS)
             list_id = check_affairs(webhook=WEBHOOK, owner_id=OWNER_ID, now=now, list_id=list_id, future=future)
+            count_fail = 5
             set_json(list_id)
             logger.info(f'Сон на {SLEEP_SECONDS} секунд')
             sleep(SLEEP_SECONDS)
+        except RuntimeError as error:
+            count_fail -= 1
+            logger.error(f'Ошибка: {error}\n{format_exc()}')
+            logger.debug(f'Пауза 2 минуты')
+            sleep(120)
         except Exception as error:
+            count_fail -= 1
             logger.error(f'{error}\n{format_exc()}')
-            break
+            logger.debug(f'Пауза 2 минуты')
+            sleep(120)
+
+    if count_fail <= 0:
+        logger.warning('Остановка с ошибкой')

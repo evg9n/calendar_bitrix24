@@ -21,8 +21,10 @@ def get_data_event(hook: str, meet_id: int) -> None:
                            params={'id': meet_id})
 
     name = affairs["NAME"]
-    date_from = f'{affairs["DATE_FROM"][:-3]}({affairs["TZ_FROM"]})'
-    date_to = f'{affairs["DATE_TO"][:-3]}({affairs["TZ_TO"]})'
+    # date_from = f'{affairs["DATE_FROM"][:-3]}({affairs["TZ_FROM"]})'
+    date_from = f'{affairs["DATE_FROM"][:-3]}'
+    # date_to = f'{affairs["DATE_TO"][:-3]}({affairs["TZ_TO"]})'
+    date_to = f'{affairs["DATE_TO"][:-3]}'
     discription = affairs["DESCRIPTION"]
 
     data = get_json_data_id()
@@ -116,8 +118,6 @@ def check_affairs(webhook: str, owner_id: int, now: str, future: str, list_id: l
 
                 data.pop(meet_id)
                 set_json_data_id(data_id=data)
-
-
 
     logger.info(f'Функция check_affairs возвращает {list_id}')
     return list_id
